@@ -34,6 +34,12 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
+		
+		setTimeout(function(){
+			window.location="https://tucuatro.com/es/acordes/"; 
+		}, 3000);
+
+		
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {

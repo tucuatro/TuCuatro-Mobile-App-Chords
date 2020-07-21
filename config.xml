@@ -3,7 +3,7 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "com.phonegap.helloworld"
+        id        = "com.tucuatro.chords"
         version   = "0.0.1">
 
     <name>TuCuatro Chords</name>
@@ -41,6 +41,8 @@
         Define a specific version of PhoneGap to build into your app.
         <preference name="phonegap-version"       value="3.5.0" />
     -->
+	<preference name="SplashScreenDelay"            value="10000" />
+    <preference name="SplashScreen"                 value="screen" />
 
     <!-- Plugins -->
 
