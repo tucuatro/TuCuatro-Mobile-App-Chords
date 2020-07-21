@@ -36,7 +36,7 @@ var app = {
         app.receivedEvent('deviceready');
 		
 		setTimeout(function(){
-			window.location="https://tucuatro.com/es/acordes/"; 
+			window.location="https://tucuatro.com/chords/app/"; 
 		}, 3000);
 
 		
