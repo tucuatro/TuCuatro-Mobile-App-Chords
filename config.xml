@@ -119,7 +119,7 @@
 	-->
 	<platform name="ios">
 		<!-- 2732x2732 -->
-		<splash src="res/screen/ios/screen-iphone-portrait-568h-2x.png" />
+		    <splash src="res/screen/ios/Default@2x~universal~anyany.png" />
 	</platform>
 
     <gap:config-file platform="ios" parent="CFBundleShortVersionString">
