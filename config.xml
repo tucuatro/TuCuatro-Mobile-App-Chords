@@ -76,7 +76,7 @@
     <plugin name="cordova-plugin-network-information" />
     <plugin name="cordova-plugin-vibration" />
 -->
-	<plugin name="cordova-plugin-inappbrowser" />
+	<plugin name="cordova-plugin-inappbrowser" source="npm"/>
     <plugin name="cordova-plugin-splashscreen" />
     
     <!-- Third party plugins -->
