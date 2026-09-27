@@ -288,7 +288,7 @@ private struct ChordDiagram: View {
                 if let barreFret = shape.barreFret {
                     Capsule()
                         .fill(.primary)
-                        .frame(width: width + 8, height: 14)
+                        .frame(width: stringCount == 6 ? width + 8 : width * 0.63, height: 14)
                         .position(
                             x: left + width / 2,
                             y: top + (CGFloat(barreFret) - 0.5) * fretSpacing
