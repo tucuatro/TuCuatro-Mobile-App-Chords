@@ -150,14 +150,6 @@ struct ContentView: View {
                     .foregroundStyle(warmGray)
 
                 Spacer()
-
-                Text("\(availableChords.count)")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(cream)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(Color(red: 48 / 255, green: 43 / 255, blue: 37 / 255))
-                    .clipShape(Capsule())
             }
             .padding(.horizontal, 16)
             .frame(height: 48)
