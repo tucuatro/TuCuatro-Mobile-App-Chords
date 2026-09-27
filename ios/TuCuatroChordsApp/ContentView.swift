@@ -418,13 +418,6 @@ private struct ChordDiagram: View {
         isSixString ? 0.88 : 0.42
     }
 
-    private var fretRangeText: String {
-        if shape.baseFret > 1 {
-            return "Frets \(shape.baseFret)–\(shape.baseFret + visibleFrets - 1)"
-        }
-        return "Frets 1–\(visibleFrets)"
-    }
-
     var body: some View {
         GeometryReader { proxy in
             let cardWidth = proxy.size.width
@@ -449,10 +442,6 @@ private struct ChordDiagram: View {
                         .foregroundStyle(Color(red: 111 / 255, green: 102 / 255, blue: 93 / 255))
 
                     Spacer()
-
-                    Text(fretRangeText)
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color(red: 111 / 255, green: 102 / 255, blue: 93 / 255))
                 }
                 .padding(.horizontal, 22)
                 .position(x: cardWidth / 2, y: 34)
@@ -478,10 +467,20 @@ private struct ChordDiagram: View {
                     )
                 }
 
+                if shape.baseFret > 1 {
+                    Text("\(shape.baseFret)fr")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color(red: 111 / 255, green: 102 / 255, blue: 93 / 255))
+                        .position(
+                            x: max(left - 24, 16),
+                            y: top + fretSpacing / 2
+                        )
+                }
+
                 if let barreFret = shape.barreFret {
                     Capsule()
                         .fill(accent)
-                        .frame(width: isSixString ? width + 6 : width * 0.64, height: 12)
+                        .frame(width: width + 6, height: 12)
                         .position(
                             x: left + width / 2,
                             y: top + (CGFloat(barreFret) - 0.5) * fretSpacing
@@ -506,13 +505,15 @@ private struct ChordDiagram: View {
 
                     case let .fret(fret):
                         let displayed = shape.displayFret(for: fret)
-                        Circle()
-                            .fill(accent)
-                            .frame(width: 28, height: 28)
-                            .position(
-                                x: x,
-                                y: top + (CGFloat(displayed) - 0.5) * fretSpacing
-                            )
+                        if shape.barreFret != displayed {
+                            Circle()
+                                .fill(accent)
+                                .frame(width: 28, height: 28)
+                                .position(
+                                    x: x,
+                                    y: top + (CGFloat(displayed) - 0.5) * fretSpacing
+                                )
+                        }
                     }
                 }
             }
