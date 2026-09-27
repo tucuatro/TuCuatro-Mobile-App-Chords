@@ -198,6 +198,7 @@ private struct ChordPickerSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
+    @FocusState private var searchIsFocused: Bool
 
     private var filteredChords: [String] {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -228,6 +229,11 @@ private struct ChordPickerSheet: View {
             }
             .navigationTitle("Choose Chord")
             .searchable(text: $searchText, prompt: "Search chords")
+            .searchFocused($searchIsFocused)
+            .task {
+                try? await Task.sleep(nanoseconds: 180_000_000)
+                searchIsFocused = true
+            }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
