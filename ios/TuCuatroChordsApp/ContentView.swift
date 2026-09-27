@@ -24,9 +24,13 @@ struct ContentView: View {
     private var accent: Color {
         switch instrument.lowercased() {
         case "cuatro":
-            return Color(red: 254 / 255, green: 160 / 255, blue: 47 / 255)
+            return Color(red: 254 / 255, green: 160 / 255, blue: 47 / 255) // #FEA02F
         case "guitar":
-            return Color(red: 74 / 255, green: 144 / 255, blue: 226 / 255)
+            return Color(red: 2 / 255, green: 116 / 255, blue: 190 / 255) // #0274BE
+        case "ukulele":
+            return Color(red: 230 / 255, green: 33 / 255, blue: 23 / 255) // #E62117
+        case "cavaquinho":
+            return Color(red: 139 / 255, green: 195 / 255, blue: 74 / 255) // #8BC34A
         default:
             return Color(red: 254 / 255, green: 160 / 255, blue: 47 / 255)
         }
