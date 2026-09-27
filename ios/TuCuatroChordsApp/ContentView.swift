@@ -415,7 +415,7 @@ private struct ChordDiagram: View {
     }
 
     private var diagramWidthFactor: CGFloat {
-        isSixString ? 0.88 : 0.58
+        isSixString ? 0.88 : 0.42
     }
 
     private var fretRangeText: String {
