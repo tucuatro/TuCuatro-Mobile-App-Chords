@@ -47,6 +47,8 @@ struct ChordShape: Equatable {
         }
     }
 
+    /// Mirrors the Web renderer: only shift a shape when it cannot fit in the
+    /// 0...4 window and the lowest pressed fret is above fret 2.
     var baseFret: Int {
         let pressed = pressedFrets
         guard let minimum = pressed.min(), let maximum = pressed.max(),
@@ -55,8 +57,54 @@ struct ChordShape: Equatable {
     }
 
     func displayFret(for fret: Int) -> Int {
-        guard fret > 0, baseFret > 1 else { return fret }
-        return fret - baseFret + 1
+        guard fret > 0 else { return fret }
+        let shifted = baseFret > 1 ? fret - baseFret + 1 : fret
+        return min(max(shifted, 1), 4)
+    }
+
+    /// Fret on which Web would infer a visual barre after applying the
+    /// higher-position shift. Nil means no barre.
+    var barreFret: Int? {
+        let values: [Int?] = strings.map { state in
+            switch state {
+            case .muted:
+                return nil
+            case let .fret(fret):
+                guard fret > 0 else { return 0 }
+                return displayFret(for: fret)
+            }
+        }
+
+        let pressed = values.compactMap { $0 }.filter { $0 > 0 }
+        guard let minimum = pressed.min() else { return nil }
+
+        let hasOpenString = values.contains { $0 == 0 }
+        if hasOpenString { return nil }
+
+        let countAtMinimum = pressed.filter { $0 == minimum }.count
+        let hasHigherFret = pressed.contains { $0 > minimum }
+
+        if strings.count == 4 {
+            if countAtMinimum == 4 { return minimum }
+            if countAtMinimum >= 3 { return minimum }
+            if countAtMinimum >= 2 && hasHigherFret { return minimum }
+            return nil
+        }
+
+        if strings.count == 6 {
+            let firstMuted: Bool
+            let lastMuted: Bool
+
+            if case .muted = strings.first { firstMuted = true } else { firstMuted = false }
+            if case .muted = strings.last { lastMuted = true } else { lastMuted = false }
+            let hasOuterMute = firstMuted || lastMuted
+
+            if countAtMinimum >= 4 { return minimum }
+            if countAtMinimum == 3 && hasHigherFret { return minimum }
+            if countAtMinimum == 2 && hasHigherFret && hasOuterMute { return minimum }
+        }
+
+        return nil
     }
 }
 
