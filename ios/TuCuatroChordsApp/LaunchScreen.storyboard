@@ -16,14 +16,15 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="TuCuatroMark" translatesAutoresizingMaskIntoConstraints="NO" id="launch-mark">
-                                <rect key="frame" x="176.5" y="367" width="40" height="80"/>
+                                <rect key="frame" x="176.5" y="366" width="40" height="80"/>
+                                <color key="tintColor" red="0.9607843137" green="0.9450980392" blue="0.9098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="40" id="mark-width"/>
                                     <constraint firstAttribute="height" constant="80" id="mark-height"/>
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="CHORDS" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="launch-label">
-                                <rect key="frame" x="158" y="465" width="77" height="18"/>
+                                <rect key="frame" x="158" y="464" width="77" height="18"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                 <color key="textColor" red="0.9607843137" green="0.9450980392" blue="0.9098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </label>
