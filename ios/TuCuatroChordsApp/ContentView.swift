@@ -341,33 +341,61 @@ private struct ChordPickerSheet: View {
 
     var body: some View {
         NavigationStack {
-            List(filteredChords, id: \.self) { chord in
-                Button {
-                    selection = chord
-                    dismiss()
-                } label: {
-                    HStack {
-                        Text(chord)
-                            .foregroundStyle(.primary)
-                        Spacer()
-                        if chord == selection {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(accent)
+            VStack(spacing: 0) {
+                HStack(spacing: 10) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+
+                    TextField("Search chords", text: $searchText)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .focused($searchIsFocused)
+
+                    if !searchText.isEmpty {
+                        Button {
+                            searchText = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 14)
+                .frame(height: 44)
+                .background(Color.secondary.opacity(0.10))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+
+                List(filteredChords, id: \.self) { chord in
+                    Button {
+                        selection = chord
+                        dismiss()
+                    } label: {
+                        HStack {
+                            Text(chord)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            if chord == selection {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(accent)
+                            }
                         }
                     }
                 }
+                .listStyle(.plain)
             }
             .navigationTitle("Choose Chord")
-            .searchable(text: $searchText, prompt: "Search chords")
-            .searchFocused($searchIsFocused)
-            .task {
-                try? await Task.sleep(nanoseconds: 180_000_000)
-                searchIsFocused = true
-            }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                 }
+            }
+            .task {
+                try? await Task.sleep(nanoseconds: 180_000_000)
+                searchIsFocused = true
             }
         }
         .tint(accent)
