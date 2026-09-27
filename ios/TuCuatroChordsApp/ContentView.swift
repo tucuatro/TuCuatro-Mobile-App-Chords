@@ -6,6 +6,7 @@ struct ContentView: View {
     @State private var instrument = "cuatro"
     @State private var chord = "A"
     @State private var position = "1st"
+    @State private var showingChordPicker = false
 
     private var availableChords: [String] {
         store.chords(for: instrument)
@@ -92,28 +93,59 @@ struct ContentView: View {
 
     private var selectors: some View {
         HStack(spacing: 12) {
-            Picker("Instrument", selection: $instrument) {
+            Menu {
                 ForEach(store.instruments, id: \.self) { item in
-                    Text(displayName(for: item)).tag(item)
+                    Button(displayName(for: item)) {
+                        instrument = item
+                    }
                 }
+            } label: {
+                selectorLabel(title: "Instrument", value: instrumentDisplayName, systemImage: "guitars")
             }
-            .pickerStyle(.menu)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(Color.secondary.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            Picker("Chord", selection: $chord) {
-                ForEach(availableChords, id: \.self) { item in
-                    Text(item).tag(item)
-                }
+            Button {
+                showingChordPicker = true
+            } label: {
+                selectorLabel(title: "Chord", value: chord, systemImage: "music.note")
             }
-            .pickerStyle(.menu)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(Color.secondary.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .buttonStyle(.plain)
         }
+        .sheet(isPresented: $showingChordPicker) {
+            ChordPickerSheet(
+                chords: availableChords,
+                selection: $chord
+            )
+            .presentationDetents([.medium, .large])
+        }
+    }
+
+    private func selectorLabel(title: String, value: String, systemImage: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: systemImage)
+                .foregroundStyle(.secondary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Text(value)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+
+            Spacer(minLength: 4)
+
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity)
+        .background(Color.secondary.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private var instrumentDisplayName: String {
@@ -159,9 +191,55 @@ struct ContentView: View {
     }
 }
 
+
+private struct ChordPickerSheet: View {
+    let chords: [String]
+    @Binding var selection: String
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText = ""
+
+    private var filteredChords: [String] {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return chords
+        }
+        return chords.filter {
+            $0.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
+    var body: some View {
+        NavigationStack {
+            List(filteredChords, id: \.self) { chord in
+                Button {
+                    selection = chord
+                    dismiss()
+                } label: {
+                    HStack {
+                        Text(chord)
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        if chord == selection {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(.tint)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Choose Chord")
+            .searchable(text: $searchText, prompt: "Search chords")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+}
+
 private struct ChordDiagram: View {
     let shape: ChordShape
-    private let visibleFrets = 5
+    private let visibleFrets = 4
 
     var body: some View {
         GeometryReader { proxy in
@@ -207,6 +285,16 @@ private struct ChordDiagram: View {
                         .position(x: 23, y: top + fretSpacing / 2)
                 }
 
+                if let barreFret = shape.barreFret {
+                    Capsule()
+                        .fill(.primary)
+                        .frame(width: width + 8, height: 14)
+                        .position(
+                            x: left + width / 2,
+                            y: top + (CGFloat(barreFret) - 0.5) * fretSpacing
+                        )
+                }
+
                 ForEach(Array(shape.strings.enumerated()), id: \.offset) { index, state in
                     let x = left + CGFloat(index) * stringSpacing
 
@@ -224,15 +312,13 @@ private struct ChordDiagram: View {
 
                     case let .fret(fret):
                         let displayed = shape.displayFret(for: fret)
-                        if displayed >= 1 && displayed <= visibleFrets {
-                            Circle()
-                                .fill(.primary)
-                                .frame(width: 25, height: 25)
-                                .position(
-                                    x: x,
-                                    y: top + (CGFloat(displayed) - 0.5) * fretSpacing
-                                )
-                        }
+                        Circle()
+                            .fill(.primary)
+                            .frame(width: 25, height: 25)
+                            .position(
+                                x: x,
+                                y: top + (CGFloat(displayed) - 0.5) * fretSpacing
+                            )
                     }
                 }
             }
