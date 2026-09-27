@@ -102,10 +102,20 @@ struct ContentView: View {
     }
 
     private var brandLine: some View {
-        Text("TUCUATRO CHORDS")
-            .font(.system(size: 13, weight: .semibold))
-            .tracking(0.6)
-            .foregroundStyle(Color(red: 245 / 255, green: 241 / 255, blue: 232 / 255).opacity(0.72))
+        HStack(spacing: 9) {
+            Image("TuCuatroMark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 17, height: 28)
+                .accessibilityHidden(true)
+
+            Text("TuCuatro Chords")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(cream)
+
+            Spacer()
+        }
+        .accessibilityElement(children: .combine)
     }
 
     private var instrumentSelector: some View {
@@ -228,7 +238,7 @@ struct ContentView: View {
     private var footerStatusText: String {
         switch store.syncState {
         case .idle:
-            return "Offline library ready"
+            return "Chord library available offline"
         case .checking:
             return "Checking for updates"
         case .current:
@@ -236,9 +246,9 @@ struct ContentView: View {
         case .updated:
             return "Library updated"
         case .offline:
-            return "Offline library ready"
+            return "Chord library available offline"
         case .failed:
-            return "Using offline library"
+            return "Chord library available offline"
         }
     }
 
