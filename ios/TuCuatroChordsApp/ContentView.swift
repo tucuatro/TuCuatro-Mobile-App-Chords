@@ -44,7 +44,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     brandLine
-                        .padding(.top, 16)
+                        .padding(.top, 20)
 
                     instrumentSelector
                         .padding(.top, 14)
@@ -102,15 +102,15 @@ struct ContentView: View {
     }
 
     private var brandLine: some View {
-        HStack(spacing: 9) {
+        HStack(spacing: 10) {
             Image("TuCuatroMark")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 17, height: 28)
+                .frame(width: 18, height: 34)
                 .accessibilityHidden(true)
 
             Text("TuCuatro Chords")
-                .font(.system(size: 17, weight: .semibold))
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(cream)
 
             Spacer()
