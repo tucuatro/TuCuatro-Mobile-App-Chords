@@ -1,6 +1,9 @@
 import AppKit
+import CoreGraphics
 import CoreImage
 import Foundation
+import ImageIO
+import UniformTypeIdentifiers
 
 guard CommandLine.arguments.count == 4 else {
     fputs("usage: render_brand_assets.swift <canonical.png> <app-icon.png> <mark.png>\n", stderr)
@@ -11,6 +14,21 @@ let sourceURL = URL(fileURLWithPath: CommandLine.arguments[1])
 let appIconURL = URL(fileURLWithPath: CommandLine.arguments[2])
 let markURL = URL(fileURLWithPath: CommandLine.arguments[3])
 
+func writePNG(_ image: CGImage, to url: URL) throws {
+    guard let destination = CGImageDestinationCreateWithURL(
+        url as CFURL,
+        UTType.png.identifier as CFString,
+        1,
+        nil
+    ) else {
+        throw NSError(domain: "TuCuatroBrand", code: 1)
+    }
+    CGImageDestinationAddImage(destination, image, nil)
+    guard CGImageDestinationFinalize(destination) else {
+        throw NSError(domain: "TuCuatroBrand", code: 2)
+    }
+}
+
 guard
     let sourceData = try? Data(contentsOf: sourceURL),
     let sourceImage = NSImage(data: sourceData),
@@ -20,6 +38,7 @@ else {
     exit(65)
 }
 
+// Determine the non-transparent bounds of the canonical mark.
 let width = sourceCG.width
 let height = sourceCG.height
 guard let bitmap = NSBitmapImageRep(
@@ -81,6 +100,7 @@ guard let cropped = sourceCG.cropping(to: cropRect) else {
     exit(68)
 }
 
+// Convert the exact canonical silhouette to solid white while preserving alpha.
 let input = CIImage(cgImage: cropped)
 guard let filter = CIFilter(name: "CIColorMatrix") else {
     fputs("Unable to create color filter.\n", stderr)
@@ -96,81 +116,69 @@ filter.setValue(CIVector(x: 1, y: 1, z: 1, w: 0), forKey: "inputBiasVector")
 
 guard
     let tinted = filter.outputImage,
-    let tintedCG = CIContext(options: nil).createCGImage(tinted, from: tinted.extent)
+    let tintedCG = CIContext(options: [.workingColorSpace: CGColorSpaceCreateDeviceRGB()])
+        .createCGImage(tinted, from: tinted.extent)
 else {
     fputs("Unable to tint canonical mark.\n", stderr)
     exit(70)
 }
 
-let markRep = NSBitmapImageRep(cgImage: tintedCG)
-guard let markPNG = markRep.representation(using: .png, properties: [:]) else {
+do {
+    try writePNG(tintedCG, to: markURL)
+} catch {
     fputs("Unable to encode transparent mark PNG.\n", stderr)
     exit(71)
 }
-try markPNG.write(to: markURL, options: .atomic)
 
-let canvas = NSSize(width: 1024, height: 1024)
-let image = NSImage(size: canvas)
-image.lockFocus()
+// Build the App Store icon directly in a Core Graphics RGB bitmap.
+// Avoid NSImage focus/drawing here: that path produced a black bitmap on the
+// founder's Mac even though the transparent mark rendered correctly.
+let iconSize = 1024
+let colorSpace = CGColorSpaceCreateDeviceRGB()
+guard let context = CGContext(
+    data: nil,
+    width: iconSize,
+    height: iconSize,
+    bitsPerComponent: 8,
+    bytesPerRow: 0,
+    space: colorSpace,
+    bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+) else {
+    fputs("Unable to create RGB app icon context.\n", stderr)
+    exit(72)
+}
 
-NSColor(
-    calibratedRed: 254.0 / 255.0,
-    green: 160.0 / 255.0,
-    blue: 47.0 / 255.0,
-    alpha: 1
-).setFill()
-NSBezierPath(rect: NSRect(origin: .zero, size: canvas)).fill()
+context.setFillColor(
+    CGColor(
+        colorSpace: colorSpace,
+        components: [254.0 / 255.0, 160.0 / 255.0, 47.0 / 255.0, 1]
+    )!
+)
+context.fill(CGRect(x: 0, y: 0, width: iconSize, height: iconSize))
+context.interpolationQuality = .high
 
 let markHeight: CGFloat = 619
 let aspect = CGFloat(tintedCG.width) / CGFloat(tintedCG.height)
 let markWidth = markHeight * aspect
-let markRect = NSRect(
-    x: (1024 - markWidth) / 2,
-    y: (1024 - markHeight) / 2,
+let markRect = CGRect(
+    x: (CGFloat(iconSize) - markWidth) / 2,
+    y: (CGFloat(iconSize) - markHeight) / 2,
     width: markWidth,
     height: markHeight
 )
+context.draw(tintedCG, in: markRect)
 
-NSImage(cgImage: tintedCG, size: NSSize(width: tintedCG.width, height: tintedCG.height)).draw(
-    in: markRect,
-    from: NSRect(x: 0, y: 0, width: tintedCG.width, height: tintedCG.height),
-    operation: .sourceOver,
-    fraction: 1,
-    respectFlipped: true,
-    hints: [.interpolation: NSImageInterpolation.high]
-)
-image.unlockFocus()
-
-guard let opaque = NSBitmapImageRep(
-    bitmapDataPlanes: nil,
-    pixelsWide: 1024,
-    pixelsHigh: 1024,
-    bitsPerSample: 8,
-    samplesPerPixel: 3,
-    hasAlpha: false,
-    isPlanar: false,
-    colorSpaceName: .deviceRGB,
-    bytesPerRow: 0,
-    bitsPerPixel: 0
-) else {
-    fputs("Unable to create opaque icon bitmap.\n", stderr)
-    exit(72)
-}
-
-NSGraphicsContext.saveGraphicsState()
-NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: opaque)
-image.draw(
-    in: NSRect(origin: .zero, size: canvas),
-    from: NSRect(origin: .zero, size: canvas),
-    operation: .copy,
-    fraction: 1
-)
-NSGraphicsContext.restoreGraphicsState()
-
-guard let iconPNG = opaque.representation(using: .png, properties: [:]) else {
-    fputs("Unable to encode app icon PNG.\n", stderr)
+guard let appIconCG = context.makeImage() else {
+    fputs("Unable to finalize app icon image.\n", stderr)
     exit(73)
 }
-try iconPNG.write(to: appIconURL, options: .atomic)
+
+do {
+    try writePNG(appIconCG, to: appIconURL)
+} catch {
+    fputs("Unable to encode app icon PNG.\n", stderr)
+    exit(74)
+}
 
 print("Generated TuCuatro Chords brand assets.")
+print("App icon: 1024x1024 RGB, #FEA02F background, canonical white mark.")
