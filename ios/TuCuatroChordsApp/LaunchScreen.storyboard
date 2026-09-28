@@ -15,7 +15,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="TuCuatroMark" translatesAutoresizingMaskIntoConstraints="NO" id="launch-mark">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="LaunchMark" translatesAutoresizingMaskIntoConstraints="NO" id="launch-mark">
                                 <rect key="frame" x="176.5" y="366" width="40" height="80"/>
                                 <color key="tintColor" red="0.9607843137" green="0.9450980392" blue="0.9098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
@@ -30,7 +30,7 @@
                             </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="safe-area"/>
-                        <color key="backgroundColor" red="0.07058823529" green="0.06666666667" blue="0.05882352941" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" name="LaunchBackground"/>
                         <constraints>
                             <constraint firstItem="launch-mark" firstAttribute="centerX" secondItem="launch-view" secondAttribute="centerX" id="mark-center-x"/>
                             <constraint firstItem="launch-mark" firstAttribute="centerY" secondItem="launch-view" secondAttribute="centerY" constant="-20" id="mark-center-y"/>
@@ -42,7 +42,10 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <resources>
-                <image name="TuCuatroMark" width="512" height="512"/>
+                <image name="LaunchMark" width="47" height="88"/>
+                <namedColor name="LaunchBackground">
+                    <color red="0.07058823529" green="0.06666666667" blue="0.05882352941" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </namedColor>
             </resources>
         </scene>
     </scenes>
