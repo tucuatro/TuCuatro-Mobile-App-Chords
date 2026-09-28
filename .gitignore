@@ -3,4 +3,5 @@ xcuserdata/
 *.xcuserstate
 .brand-assets/
 ios/TuCuatroChordsApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png
-ios/TuCuatroChordsApp/Assets.xcassets/TuCuatroMark.imageset/TuCuatroMark.png
+ios/TuCuatroChordsApp/Assets.xcassets/TuCuatroMark.imageset/*.png
+ios/TuCuatroChordsApp/Assets.xcassets/LaunchMark.imageset/*.png
