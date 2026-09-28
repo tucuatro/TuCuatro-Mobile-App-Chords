@@ -100,33 +100,44 @@ guard let cropped = sourceCG.cropping(to: cropRect) else {
     exit(68)
 }
 
-// Convert the exact canonical silhouette to solid white while preserving alpha.
 let input = CIImage(cgImage: cropped)
-guard let filter = CIFilter(name: "CIColorMatrix") else {
-    fputs("Unable to create color filter.\n", stderr)
+
+func tintedMark(red: CGFloat, green: CGFloat, blue: CGFloat) -> CGImage? {
+    guard let filter = CIFilter(name: "CIColorMatrix") else { return nil }
+    filter.setValue(input, forKey: kCIInputImageKey)
+    filter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputRVector")
+    filter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputGVector")
+    filter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputBVector")
+    filter.setValue(CIVector(x: 0, y: 0, z: 0, w: 1), forKey: "inputAVector")
+    filter.setValue(CIVector(x: red, y: green, z: blue, w: 0), forKey: "inputBiasVector")
+    guard let output = filter.outputImage else { return nil }
+    return CIContext(options: [.workingColorSpace: CGColorSpaceCreateDeviceRGB()])
+        .createCGImage(output, from: output.extent)
+}
+
+// In-app / launch identity remains white on the dark TuCuatro shell.
+guard let whiteMarkCG = tintedMark(red: 1, green: 1, blue: 1) else {
+    fputs("Unable to tint canonical mark white.\n", stderr)
     exit(69)
 }
 
-filter.setValue(input, forKey: kCIInputImageKey)
-filter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputRVector")
-filter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputGVector")
-filter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputBVector")
-filter.setValue(CIVector(x: 0, y: 0, z: 0, w: 1), forKey: "inputAVector")
-filter.setValue(CIVector(x: 1, y: 1, z: 1, w: 0), forKey: "inputBiasVector")
-
-guard
-    let tinted = filter.outputImage,
-    let tintedCG = CIContext(options: [.workingColorSpace: CGColorSpaceCreateDeviceRGB()])
-        .createCGImage(tinted, from: tinted.extent)
-else {
-    fputs("Unable to tint canonical mark.\n", stderr)
+do {
+    try writePNG(whiteMarkCG, to: markURL)
+} catch {
+    fputs("Unable to encode transparent mark PNG.\n", stderr)
     exit(70)
 }
 
-do {
-    try writePNG(tintedCG, to: markURL)
-} catch {
-    fputs("Unable to encode transparent mark PNG.\n", stderr)
+// The Chords icon intentionally uses the parent-brand warm neutral rather than
+// an instrument color. This keeps Guitar blue / Ukulele red / Cavaquinho green
+// semantically free inside the app, while making Chords immediately distinct
+// from the Cuatro-specific orange Tuner icon on the Home Screen.
+guard let iconMarkCG = tintedMark(
+    red: 18.0 / 255.0,
+    green: 17.0 / 255.0,
+    blue: 15.0 / 255.0
+) else {
+    fputs("Unable to tint canonical icon mark.\n", stderr)
     exit(71)
 }
 
@@ -151,14 +162,14 @@ guard let context = CGContext(
 context.setFillColor(
     CGColor(
         colorSpace: colorSpace,
-        components: [254.0 / 255.0, 160.0 / 255.0, 47.0 / 255.0, 1]
+        components: [245.0 / 255.0, 241.0 / 255.0, 232.0 / 255.0, 1]
     )!
 )
 context.fill(CGRect(x: 0, y: 0, width: iconSize, height: iconSize))
 context.interpolationQuality = .high
 
 let markHeight: CGFloat = 619
-let aspect = CGFloat(tintedCG.width) / CGFloat(tintedCG.height)
+let aspect = CGFloat(iconMarkCG.width) / CGFloat(iconMarkCG.height)
 let markWidth = markHeight * aspect
 let markRect = CGRect(
     x: (CGFloat(iconSize) - markWidth) / 2,
@@ -166,7 +177,7 @@ let markRect = CGRect(
     width: markWidth,
     height: markHeight
 )
-context.draw(tintedCG, in: markRect)
+context.draw(iconMarkCG, in: markRect)
 
 guard let appIconCG = context.makeImage() else {
     fputs("Unable to finalize app icon image.\n", stderr)
@@ -181,4 +192,4 @@ do {
 }
 
 print("Generated TuCuatro Chords brand assets.")
-print("App icon: 1024x1024 RGB, #FEA02F background, canonical white mark.")
+print("App icon: 1024x1024 RGB, warm-cream #F5F1E8 background, canonical near-black mark.")
