@@ -12,6 +12,10 @@ LAUNCH_SET="$ROOT_DIR/ios/TuCuatroChordsApp/Assets.xcassets/LaunchMark.imageset"
 
 mkdir -p "$WORK_DIR" "$MARK_SET" "$LAUNCH_SET"
 
+# Remove legacy single-file assets from the earlier catalog layout so Xcode
+# does not surface them as unassigned children beside the 1x/2x/3x set.
+rm -f "$MARK_SET/TuCuatroMark.png"
+
 python3 - "$SOURCE_B64" "$SOURCE_PNG" <<'PY'
 import base64
 import pathlib
