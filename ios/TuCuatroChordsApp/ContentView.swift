@@ -495,7 +495,7 @@ private struct LivingCuatroLaunchOverlay: View {
                             Circle().position(x: 0.687 * width, y: 0.169 * height)
                             Circle().position(x: 0.697 * width, y: 0.209 * height)
                         }
-                        .frame(width: 11, height: 11)
+                        .frame(width: 9, height: 9)
                         .foregroundStyle(traceCream)
                         .opacity(headstockOpacity)
 
@@ -598,7 +598,7 @@ private struct InstrumentHandoffTrace: View {
             if progress > 0.02 && progress < 0.98 {
                 Circle()
                     .fill(pointColor)
-                    .frame(width: 9, height: 9)
+                    .frame(width: 11, height: 11)
                     .position(cubicPoint(progress: progress, p0: p0, p1: p1, p2: p2, p3: p3))
                     .opacity(fade(progress))
             }
