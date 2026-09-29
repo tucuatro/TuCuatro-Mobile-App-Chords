@@ -180,8 +180,9 @@ struct ContentView: View {
         .overlay(alignment: .trailing) {
             if instrumentHandoffVisible && !reduceMotion {
                 InstrumentHandoffTrace(progress: instrumentHandoffProgress)
-                    .frame(width: 96, height: 28)
-                    .padding(.trailing, 34)
+                    .frame(width: 112, height: 32)
+                    .padding(.trailing, 52)
+                    .offset(y: 18)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }
@@ -494,7 +495,7 @@ private struct LivingCuatroLaunchOverlay: View {
                             Circle().position(x: 0.687 * width, y: 0.169 * height)
                             Circle().position(x: 0.697 * width, y: 0.209 * height)
                         }
-                        .frame(width: 9, height: 9)
+                        .frame(width: 11, height: 11)
                         .foregroundStyle(traceCream)
                         .opacity(headstockOpacity)
 
@@ -576,8 +577,8 @@ private struct LivingCuatroLaunchOverlay: View {
 private struct InstrumentHandoffTrace: View {
     let progress: CGFloat
 
-    private let strokeColor = Color(red: 91 / 255, green: 85 / 255, blue: 78 / 255)
-    private let pointColor = Color(red: 242 / 255, green: 231 / 255, blue: 206 / 255)
+    private let strokeColor = Color(red: 175 / 255, green: 166 / 255, blue: 155 / 255)
+    private let pointColor = Color(red: 245 / 255, green: 241 / 255, blue: 232 / 255)
 
     var body: some View {
         GeometryReader { proxy in
@@ -592,7 +593,7 @@ private struct InstrumentHandoffTrace: View {
                 path.addCurve(to: p3, control1: p1, control2: p2)
             }
             .trim(from: 0, to: progress)
-            .stroke(strokeColor.opacity(fade(progress) * 0.72), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+            .stroke(strokeColor.opacity(fade(progress) * 0.92), style: StrokeStyle(lineWidth: 2.0, lineCap: .round))
 
             if progress > 0.02 && progress < 0.98 {
                 Circle()
