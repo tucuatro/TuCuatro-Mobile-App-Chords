@@ -345,33 +345,40 @@ struct ContentView: View {
         instrumentHandoffGeneration += 1
         let generation = instrumentHandoffGeneration
 
-        if reduceMotion {
-            withAnimation(nil) {
-                instrumentHandoffVisible = false
-                instrumentHandoffProgress = 0
-                instrumentPresentationOpacity = 0.72
-            }
-            withAnimation(.linear(duration: 0.08)) {
-                instrumentPresentationOpacity = 1
-            }
-            return
-        }
-
-        withAnimation(nil) {
-            instrumentHandoffVisible = true
-            instrumentHandoffProgress = 0
-            instrumentPresentationOpacity = 0.55
-        }
-
-        withAnimation(.linear(duration: 0.18)) {
-            instrumentHandoffProgress = 1
-        }
-
-        withAnimation(.linear(duration: 0.12)) {
-            instrumentPresentationOpacity = 1
-        }
+        instrumentHandoffVisible = false
+        instrumentHandoffProgress = 0
+        instrumentPresentationOpacity = 1
 
         Task { @MainActor in
+            // Let the native iOS Menu finish dismissing before showing the brand handoff.
+            // The selection/data update still happens immediately in onChange.
+            try? await Task.sleep(nanoseconds: 220_000_000)
+            guard generation == instrumentHandoffGeneration else { return }
+
+            if reduceMotion {
+                withAnimation(nil) {
+                    instrumentPresentationOpacity = 0.72
+                }
+                withAnimation(.linear(duration: 0.08)) {
+                    instrumentPresentationOpacity = 1
+                }
+                return
+            }
+
+            withAnimation(nil) {
+                instrumentHandoffVisible = true
+                instrumentHandoffProgress = 0
+                instrumentPresentationOpacity = 0.55
+            }
+
+            withAnimation(.linear(duration: 0.18)) {
+                instrumentHandoffProgress = 1
+            }
+
+            withAnimation(.linear(duration: 0.12)) {
+                instrumentPresentationOpacity = 1
+            }
+
             try? await Task.sleep(nanoseconds: 230_000_000)
             guard generation == instrumentHandoffGeneration else { return }
             instrumentHandoffVisible = false
