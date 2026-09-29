@@ -463,12 +463,12 @@ private struct LivingCuatroLaunchOverlay: View {
                             let endX = CGFloat([0.385, 0.464, 0.544, 0.623][index]) * width
                             let start = CGFloat([0.03, 0.07, 0.11, 0.16][index])
                             let end = CGFloat([0.38, 0.42, 0.46, 0.50][index])
-                            var stringPath = Path()
-                            stringPath.move(to: CGPoint(x: startX, y: 0.15 * height))
-                            stringPath.addLine(to: CGPoint(x: endX, y: 0.64 * height))
-                            stringPath
-                                .trimmedPath(from: 0, to: phase(progress, start, end))
-                                .stroke(traceCream.opacity(0.88), style: StrokeStyle(lineWidth: 2.35, lineCap: .round))
+                            Path { path in
+                                path.move(to: CGPoint(x: startX, y: 0.15 * height))
+                                path.addLine(to: CGPoint(x: endX, y: 0.64 * height))
+                            }
+                            .trim(from: 0, to: phase(progress, start, end))
+                            .stroke(traceCream.opacity(0.88), style: StrokeStyle(lineWidth: 2.35, lineCap: .round))
                         }
 
                         let fretOpacity = Double(phase(progress, 0.26, 0.44)) * 0.46
@@ -498,15 +498,15 @@ private struct LivingCuatroLaunchOverlay: View {
                             .opacity(Double(phase(progress, 0.39, 0.55)))
 
                         let contactProgress = phase(progress, 0.33, 0.93)
-                        var contactPath = Path()
-                        contactPath.move(to: CGPoint(x: 0.18 * width, y: 0.305 * height))
-                        contactPath.addLine(to: CGPoint(x: 0.34 * width, y: 0.305 * height))
-                        contactPath.addLine(to: CGPoint(x: 0.533 * width, y: 0.305 * height))
-                        contactPath.addLine(to: CGPoint(x: 0.544 * width, y: 0.633 * height))
-                        contactPath.addLine(to: CGPoint(x: 0.646 * width, y: 0.645 * height))
-                        contactPath
-                            .trimmedPath(from: 0, to: contactProgress)
-                            .stroke(traceCream.opacity(0.72), style: StrokeStyle(lineWidth: 1.7, lineCap: .round, lineJoin: .round))
+                        Path { path in
+                            path.move(to: CGPoint(x: 0.18 * width, y: 0.305 * height))
+                            path.addLine(to: CGPoint(x: 0.34 * width, y: 0.305 * height))
+                            path.addLine(to: CGPoint(x: 0.533 * width, y: 0.305 * height))
+                            path.addLine(to: CGPoint(x: 0.544 * width, y: 0.633 * height))
+                            path.addLine(to: CGPoint(x: 0.646 * width, y: 0.645 * height))
+                        }
+                        .trim(from: 0, to: contactProgress)
+                        .stroke(traceCream.opacity(0.72), style: StrokeStyle(lineWidth: 1.7, lineCap: .round, lineJoin: .round))
 
                         if contactProgress > 0.01 && contactProgress < 0.99 {
                             Circle()
@@ -580,13 +580,12 @@ private struct InstrumentHandoffTrace: View {
             let p2 = CGPoint(x: size.width * 0.58, y: size.height * 0.94)
             let p3 = CGPoint(x: size.width, y: size.height * 0.54)
 
-            var path = Path()
-            path.move(to: p0)
-            path.addCurve(to: p3, control1: p1, control2: p2)
-
-            path
-                .trimmedPath(from: 0, to: progress)
-                .stroke(strokeColor.opacity(fade(progress) * 0.72), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+            Path { path in
+                path.move(to: p0)
+                path.addCurve(to: p3, control1: p1, control2: p2)
+            }
+            .trim(from: 0, to: progress)
+            .stroke(strokeColor.opacity(fade(progress) * 0.72), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
 
             if progress > 0.02 && progress < 0.98 {
                 Circle()
