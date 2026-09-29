@@ -459,8 +459,8 @@ private struct LivingCuatroLaunchOverlay: View {
                 if !reduceMotion {
                     ZStack {
                         ForEach(0..<4, id: \.self) { index in
-                            let startX = [0.323, 0.428, 0.533, 0.638][index] * width
-                            let endX = [0.385, 0.464, 0.544, 0.623][index] * width
+                            let startX = CGFloat([0.323, 0.428, 0.533, 0.638][index]) * width
+                            let endX = CGFloat([0.385, 0.464, 0.544, 0.623][index]) * width
                             let start = CGFloat([0.03, 0.07, 0.11, 0.16][index])
                             let end = CGFloat([0.38, 0.42, 0.46, 0.50][index])
                             var stringPath = Path()
@@ -472,7 +472,7 @@ private struct LivingCuatroLaunchOverlay: View {
                         }
 
                         let fretOpacity = Double(phase(progress, 0.26, 0.44)) * 0.46
-                        ForEach([0.254, 0.305, 0.352, 0.396, 0.437], id: \.self) { normalizedY in
+                        ForEach([CGFloat(0.254), 0.305, 0.352, 0.396, 0.437], id: \.self) { normalizedY in
                             Path { path in
                                 path.move(to: CGPoint(x: 0.31 * width, y: normalizedY * height))
                                 path.addLine(to: CGPoint(x: 0.655 * width, y: normalizedY * height))
