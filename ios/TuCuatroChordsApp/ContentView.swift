@@ -9,11 +9,6 @@ struct ContentView: View {
     @State private var position = "1st"
     @State private var showingChordPicker = false
 
-    @State private var launchTraceProgress: CGFloat = 0
-    @State private var launchCurtainOpacity: Double = 1
-    @State private var launchTraceOpacity: Double = 1
-    @State private var launchExpressionComplete = false
-
     @State private var instrumentHandoffProgress: CGFloat = 0
     @State private var instrumentHandoffVisible = false
     @State private var instrumentPresentationOpacity: Double = 1
@@ -88,25 +83,11 @@ struct ContentView: View {
             }
             .scrollIndicators(.hidden)
 
-            if !launchExpressionComplete {
-                LivingCuatroLaunchOverlay(
-                    progress: launchTraceProgress,
-                    curtainOpacity: launchCurtainOpacity,
-                    traceOpacity: launchTraceOpacity,
-                    reduceMotion: reduceMotion
-                )
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-                .ignoresSafeArea()
-            }
         }
         .preferredColorScheme(.dark)
         .task {
             await store.refresh()
             normalizeSelection()
-        }
-        .task {
-            await runLaunchExpression()
         }
         .onChange(of: instrument) { _ in
             if let first = availableChords.first {
@@ -311,38 +292,6 @@ struct ContentView: View {
         return raw == "prototype" ? "local" : raw
     }
 
-    @MainActor
-    private func runLaunchExpression() async {
-        if reduceMotion {
-            launchTraceOpacity = 0
-            withAnimation(.linear(duration: 0.12)) {
-                launchCurtainOpacity = 0
-            }
-            try? await Task.sleep(nanoseconds: 120_000_000)
-            launchExpressionComplete = true
-            return
-        }
-
-        withAnimation(.timingCurve(0.22, 1.0, 0.36, 1.0, duration: 0.70)) {
-            launchTraceProgress = 1
-        }
-
-        try? await Task.sleep(nanoseconds: 400_000_000)
-
-        withAnimation(.timingCurve(0.22, 1.0, 0.36, 1.0, duration: 0.22)) {
-            launchCurtainOpacity = 0
-        }
-
-        try? await Task.sleep(nanoseconds: 100_000_000)
-
-        withAnimation(.linear(duration: 0.20)) {
-            launchTraceOpacity = 0
-        }
-
-        try? await Task.sleep(nanoseconds: 200_000_000)
-        launchExpressionComplete = true
-    }
-
     private func triggerInstrumentHandoff() {
         instrumentHandoffGeneration += 1
         let generation = instrumentHandoffGeneration
@@ -444,136 +393,6 @@ struct ContentView: View {
     }
 }
 
-
-private struct LivingCuatroLaunchOverlay: View {
-    let progress: CGFloat
-    let curtainOpacity: Double
-    let traceOpacity: Double
-    let reduceMotion: Bool
-
-    private let warmBlack = Color(red: 18 / 255, green: 17 / 255, blue: 15 / 255)
-    private let traceCream = Color(red: 242 / 255, green: 231 / 255, blue: 206 / 255)
-    private let traceMuted = Color(red: 141 / 255, green: 133 / 255, blue: 123 / 255)
-
-    var body: some View {
-        GeometryReader { proxy in
-            let size = proxy.size
-            let width = size.width
-            let height = size.height
-
-            ZStack {
-                warmBlack
-                    .opacity(curtainOpacity)
-
-                if !reduceMotion {
-                    ZStack {
-                        ForEach(0..<4, id: \.self) { index in
-                            let startX = CGFloat([0.323, 0.428, 0.533, 0.638][index]) * width
-                            let endX = CGFloat([0.385, 0.464, 0.544, 0.623][index]) * width
-                            let start = CGFloat([0.03, 0.07, 0.11, 0.16][index])
-                            let end = CGFloat([0.38, 0.42, 0.46, 0.50][index])
-                            Path { path in
-                                path.move(to: CGPoint(x: startX, y: 0.15 * height))
-                                path.addLine(to: CGPoint(x: endX, y: 0.64 * height))
-                            }
-                            .trim(from: 0, to: phase(progress, start, end))
-                            .stroke(traceCream.opacity(0.88), style: StrokeStyle(lineWidth: 2.35, lineCap: .round))
-                        }
-
-                        let fretOpacity = Double(phase(progress, 0.26, 0.44)) * 0.46
-                        ForEach([CGFloat(0.254), 0.305, 0.352, 0.396, 0.437], id: \.self) { normalizedY in
-                            Path { path in
-                                path.move(to: CGPoint(x: 0.31 * width, y: normalizedY * height))
-                                path.addLine(to: CGPoint(x: 0.655 * width, y: normalizedY * height))
-                            }
-                            .stroke(traceMuted.opacity(fretOpacity), lineWidth: 1.25)
-                        }
-
-                        let headstockOpacity = Double(phase(progress, 0.33, 0.49)) * 0.82
-                        Group {
-                            Circle().position(x: 0.277 * width, y: 0.169 * height)
-                            Circle().position(x: 0.267 * width, y: 0.209 * height)
-                            Circle().position(x: 0.687 * width, y: 0.169 * height)
-                            Circle().position(x: 0.697 * width, y: 0.209 * height)
-                        }
-                        .frame(width: 9, height: 9)
-                        .foregroundStyle(traceCream)
-                        .opacity(headstockOpacity)
-
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .stroke(traceCream.opacity(0.8), lineWidth: 1.8)
-                            .frame(width: 0.364 * width, height: 21)
-                            .position(x: 0.479 * width, y: 0.645 * height)
-                            .opacity(Double(phase(progress, 0.39, 0.55)))
-
-                        let contactProgress = phase(progress, 0.33, 0.93)
-                        Path { path in
-                            path.move(to: CGPoint(x: 0.18 * width, y: 0.305 * height))
-                            path.addLine(to: CGPoint(x: 0.34 * width, y: 0.305 * height))
-                            path.addLine(to: CGPoint(x: 0.533 * width, y: 0.305 * height))
-                            path.addLine(to: CGPoint(x: 0.544 * width, y: 0.633 * height))
-                            path.addLine(to: CGPoint(x: 0.646 * width, y: 0.645 * height))
-                        }
-                        .trim(from: 0, to: contactProgress)
-                        .stroke(traceCream.opacity(0.72), style: StrokeStyle(lineWidth: 1.7, lineCap: .round, lineJoin: .round))
-
-                        if contactProgress > 0.01 && contactProgress < 0.99 {
-                            Circle()
-                                .fill(traceCream)
-                                .frame(width: 11, height: 11)
-                                .position(contactPoint(progress: contactProgress, size: size))
-                        }
-                    }
-                    .opacity(traceOpacity)
-                }
-            }
-        }
-    }
-
-    private func phase(_ value: CGFloat, _ start: CGFloat, _ end: CGFloat) -> CGFloat {
-        guard end > start else { return value >= end ? 1 : 0 }
-        return min(max((value - start) / (end - start), 0), 1)
-    }
-
-    private func contactPoint(progress: CGFloat, size: CGSize) -> CGPoint {
-        let width = size.width
-        let height = size.height
-
-        if progress < 0.25 {
-            let t = progress / 0.25
-            return CGPoint(
-                x: lerp(0.18 * width, 0.34 * width, t),
-                y: 0.305 * height
-            )
-        }
-
-        if progress < 0.50 {
-            let t = (progress - 0.25) / 0.25
-            return CGPoint(
-                x: lerp(0.34 * width, 0.533 * width, t),
-                y: 0.305 * height
-            )
-        }
-
-        if progress < 0.88 {
-            let t = (progress - 0.50) / 0.38
-            return CGPoint(
-                x: lerp(0.533 * width, 0.544 * width, t),
-                y: lerp(0.305 * height, 0.633 * height, t)
-            )
-        }
-
-        let t = (progress - 0.88) / 0.12
-        return CGPoint(
-            x: lerp(0.544 * width, 0.646 * width, t),
-            y: lerp(0.633 * height, 0.645 * height, t)
-        )
-    }
-
-    private func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {
-        a + (b - a) * min(max(t, 0), 1)
-    }
-}
 
 private struct InstrumentHandoffTrace: View {
     let progress: CGFloat
