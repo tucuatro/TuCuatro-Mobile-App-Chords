@@ -46,8 +46,8 @@ No account is required.
 ## URLs
 
 - Marketing URL: **https://tucuatro.com/chords/**
-- Support URL: **pending Web confirmation on Comms Bus #111**
-- Privacy Policy URL: **pending Web confirmation on Comms Bus #111**
+- Support URL: **https://tucuatro.com/faq/**
+- Privacy Policy URL: **https://tucuatro.com/privacy-policy/**
 
 ## App Privacy
 
@@ -59,7 +59,13 @@ Current native-code audit:
 - only public chord-library manifest/JSON download from `tucuatro.com`;
 - downloaded chord data is cached locally.
 
-Proposed App Privacy answer: **No, we do not collect data from this app**, pending Web confirmation on server-side request logging/telemetry in Bus #111. Do not publish the privacy answer until that confirmation returns.
+Final App Privacy declaration from Web review:
+- Data type: **Diagnostics -> Other Diagnostic Data**
+- Purpose: **App Functionality**
+- Linked to user: **No**
+- Used for tracking: **No**
+
+Reason: ordinary retained web-infrastructure/access-log metadata from chord manifest/library requests. Do not declare account/contact/advertising/location data for the current native app.
 
 ## Age rating
 
