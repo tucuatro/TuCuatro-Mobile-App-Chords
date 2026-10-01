@@ -4,7 +4,7 @@ Status: release candidate preparation
 Source branch: `modern-ios`  
 Bundle ID: `com.tucuatro.chords`  
 Marketing version: **1.1**  
-Release-candidate build: **11**
+Release-candidate build: **12**
 
 ## Release sequencing
 
@@ -83,7 +83,7 @@ The app may check TuCuatro's public chord-library endpoint for updated chord dat
 
 ## Screenshot set
 
-Use truthful screenshots from build **11** only. Prepare at least these three portrait screenshots for the required iPhone display class:
+Use truthful screenshots from build **12** only. Prepare at least these three portrait screenshots for the required iPhone display class:
 
 1. **Venezuelan Cuatro** — main chord view with a clear multi-position chord.
 2. **Ukulele** — a chord with a single available position, showing the corrected compact Position 1 chip rather than a full-width bar.
@@ -91,7 +91,7 @@ Use truthful screenshots from build **11** only. Prepare at least these three po
 
 Optional fourth screenshot: another instrument such as Guitar or Cavaquinho.
 
-Do not add feature claims or mock screens that are not present in build 11.
+Do not add feature claims or mock screens that are not present in build 12.
 
 ## Release-candidate acceptance
 
@@ -99,12 +99,12 @@ Before archiving:
 - pull `modern-ios`;
 - run the existing local brand/Xcode preparation script used by the accepted builds;
 - verify AppIcon, launch treatment, in-app TuCuatro identity, chord search, instrument switching, diagram accuracy, and the compact single-position control;
-- confirm Xcode shows version **1.1** / build **11**;
+- confirm Xcode shows version **1.1** / build **12**;
 - archive and upload the exact accepted build.
 
 ## App Store Connect version record
 
-The current App Store Connect draft visibly says iOS version **1.0**, while the accepted native/TestFlight line is **1.1**. Before selecting build 11, change the editable App Store version field to **1.1** (or create the 1.1 version record if Apple requires it). Do not downgrade the accepted binary back to 1.0 merely to match the stale draft.
+The current App Store Connect draft visibly says iOS version **1.0**, while the accepted native/TestFlight line is **1.1**. Before selecting build 12, change the editable App Store version field to **1.1** (or create the 1.1 version record if Apple requires it). Do not downgrade the accepted binary back to 1.0 merely to match the stale draft.
 
 ## Final founder gate
 
